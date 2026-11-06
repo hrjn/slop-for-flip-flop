@@ -1,39 +1,14 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-import { useAppName } from "../app-name";
-import { useRootScreens } from "../root-screens";
-import type { StarterScreenProps } from "../root-screens";
+import { GameCabinet } from "../game/game-cabinet";
 
-const STARTER_PATHS = {
-  // i18n-exempt: a path
-  file: "apps/web/src/routes/index.tsx",
-  // i18n-exempt: a path
-  directory: "apps/web/src/routes/",
-};
-
-const PlainStarter = ({ texts, appName, paths }: StarterScreenProps) => (
-  <main className="mx-auto flex min-h-full max-w-2xl flex-col justify-center gap-2 p-8">
-    <p className="text-sm">{texts.starterEyebrow}</p>
-    <h1 className="text-3xl font-semibold">{appName}</h1>
-    <p>
-      {texts.starterHint({
-        // Paths read left to right in any language.
-        file: <code dir="ltr">{paths.file}</code>,
-        directory: <code dir="ltr">{paths.directory}</code>,
-      })}
-    </p>
-  </main>
-);
-
-/** The starter page: the contributed screen when there is one (`root-screens.tsx`), else a plain one. */
-const Home = () => {
-  const appName = useAppName();
-  const { screens, texts } = useRootScreens();
-  const Screen = screens.Starter ?? PlainStarter;
-
-  return <Screen texts={texts} appName={appName} paths={STARTER_PATHS} />;
-};
-
+/**
+ * The arcade cabinet, served at `/`. The landing guard the scaffold ships stays: a capability that
+ * claims `/` still wins, and the game is simply what `/` shows when nothing else claims it.
+ *
+ * The canvas renders nothing on the server: the engine draws from an animation frame, which only
+ * the browser has. The markup around it is identical on both sides, so hydration is quiet.
+ */
 export const Route = createFileRoute("/")({
   beforeLoad: ({ context }) => {
     const to = context.landingPath();
@@ -43,5 +18,19 @@ export const Route = createFileRoute("/")({
       throw redirect({ href: to });
     }
   },
-  component: Home,
+  component: GameCabinet,
+  head: () => ({
+    meta: [
+      {
+        name: "description",
+        content:
+          "A pixel-art arcade game: guide a lost Mistral claquette 75 km across the Gulf of Thailand, from Koh Samui to Koh Tao.",
+      },
+      // The canvas is scaled to whole pixels against the viewport, so the page never zooms.
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1.0, user-scalable=no",
+      },
+    ],
+  }),
 });

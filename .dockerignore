@@ -36,6 +36,9 @@ ingest/
 .scratch/
 **/.playwright-cli
 
+# The game's original standalone build, kept for reference; `apps/web/src/game` is what ships.
+_old/
+
 # Secrets stay out of image layers; runtime configuration is injected by the selected launcher.
 **/.env
 **/.env.*

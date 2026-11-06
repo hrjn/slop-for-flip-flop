@@ -71,3 +71,6 @@ coverage.xml
 .sisyphus/
 .scratch/
 .playwright-cli/
+
+# The original standalone build of the game, kept locally for reference; `apps/web/src/game` ships.
+/_old/

@@ -67,6 +67,11 @@ const home = (): RouteComponent => {
   return Home;
 };
 
+/**
+ * `/` is the game, not the starter page, so the `Starter` screen a source supplies has no place
+ * left to render. What remains to check of it is its type, which the source below exercises.
+ */
+
 const renderRoot = (
   component: RouteComponent,
   source: RootScreens,
@@ -111,17 +116,10 @@ describe("the root screens", () => {
     expect(screen.getByText("Rien ne se trouve à cette adresse.")).toBeTruthy();
   });
 
-  test("the plain starter page renders the source's eyebrow and hint, its paths left to right", async () => {
+  test("`/` is the game, which renders whatever the root screens say", async () => {
     renderRoot(home(), french(), { locale: "fr" });
 
-    const file = await screen.findByText("apps/web/src/routes/index.tsx");
-
-    expect(screen.getByText("Pour commencer")).toBeTruthy();
-    expect(file.tagName).toBe("CODE");
-    expect(file.getAttribute("dir")).toBe("ltr");
-    expect(file.parentElement?.textContent).toBe(
-      "Modifiez apps/web/src/routes/index.tsx ou ajoutez une route dans apps/web/src/routes/."
-    );
+    await screen.findByRole("heading", { name: "slop for flip flop" });
   });
 
   test("with no locale on the root route, they ask for English and never resolve one", async () => {
@@ -135,7 +133,7 @@ describe("the root screens", () => {
     expect(resolveLocale).not.toHaveBeenCalled();
   });
 
-  test("a source's own screens replace the plain ones, given the words and the paths", async () => {
+  test("a source's own screens replace the plain ones, given the words", async () => {
     const source = french({
       NotFound: ({ texts }) => <h1>{`404 · ${texts.notFound}`}</h1>,
       Starter: ({ texts, appName, paths }) => (
@@ -145,12 +143,5 @@ describe("the root screens", () => {
 
     renderRoot(NotFound, source, { locale: "fr" });
     await screen.findByRole("heading", { name: "404 · Page introuvable" });
-
-    cleanup();
-    renderRoot(home(), source, { locale: "fr" });
-    // The app's name is the build's (`APP_NAME`, which an app's `.env` may set).
-    await screen.findByRole("heading", {
-      name: /^Pour commencer · .+ · apps\/web\/src\/routes\/index\.tsx$/u,
-    });
   });
 });
